@@ -145,10 +145,12 @@ def fun_predict_auc_recall_map_ndcg(
             axis=1,
             arr=sub_all_scores,
             top_k=at_nums[-1])
-        sub_all_ranks = np.apply_along_axis(
-            func1d=fun_sort_idxs_max_to_min,
-            axis=1,
-            arr=np.array(zip(sub_score_ranks, sub_all_scores)))
+        sub_all_ranks = []
+        for jj in range(sub_score_ranks.shape[0]):
+            idx = sub_score_ranks[jj]
+            scores = sub_all_scores[jj]
+            sub_all_ranks.append(fun_sort_idxs_max_to_min((idx, scores)))
+        sub_all_ranks = np.stack(sub_all_ranks, axis=0)
         all_ranks = np.concatenate((all_ranks, sub_all_ranks))
         del sub_all_scores
     all_ranks = np.delete(all_ranks, 0, axis=0)     # 去除第一行全0项
@@ -160,23 +162,30 @@ def fun_predict_auc_recall_map_ndcg(
     for k in ranges:                            # 每次考察某个at值下的命中情况
         recoms = all_ranks[:, :at_nums[k]]      # 向每名user推荐这些
         # 逐行，得到recom_lst在test_lst里的命中情况，返回与recom_lst等长的0/1序列，1表示预测的该item在user_test里
-        all_zero_ones = np.apply_along_axis(
-            func1d=fun_hit_zero_one,
-            axis=1,
-            arr=np.array(zip(tes_buys_masks, recoms, tes_masks, append)))   # shape=(n_user, at_nums[k])
+        all_zero_ones = []
+        for jj in range(len(tes_buys_masks)):
+            inp = (tes_buys_masks[jj], recoms[jj], tes_masks[jj], append[jj])
+            all_zero_ones.append(fun_hit_zero_one(inp))
+        all_zero_ones = np.stack(all_zero_ones, axis=0)
+        #all_zero_ones = np.apply_along_axis(
+        #    func1d=,
+        #    axis=1,
+        #    arr=np.array(zip(tes_buys_masks, recoms, tes_masks, append)))   # shape=(n_user, at_nums[k])
         hits[k] = np.sum(all_zero_ones)
         recall[k] = 1.0 * np.sum(all_zero_ones) / denominator_recalls
         precis[k] = 1.0 * np.sum(all_zero_ones) / (at_nums[k] * len(all_zero_ones))
         f1scor[k] = 2.0 * recall[k] * precis[k] / (recall[k] + precis[k])
-        all_maps = np.apply_along_axis(
-            func1d=fun_evaluate_map,
-            axis=1,
-            arr=np.array(zip(tes_buys_masks, all_zero_ones, tes_masks, append)))
+        all_maps = []
+        for jj in range(len(tes_buys_masks)):
+            inp = (tes_buys_masks[jj], all_zero_ones[jj], tes_masks[jj], append[jj])
+            all_maps.append(fun_evaluate_map(inp))
+        all_maps = np.stack(all_maps, axis=0)
         map[k] = np.mean(all_maps)
-        all_ndcgs = np.apply_along_axis(
-            func1d=fun_evaluate_ndcg,
-            axis=1,
-            arr=np.array(zip(tes_buys_masks, all_zero_ones, tes_masks, append)))
+        all_ndcgs = []
+        for jj in range(len(tes_buys_masks)):
+            inp = (tes_buys_masks[jj], all_zero_ones[jj], tes_masks[jj], append[jj])
+            all_ndcgs.append(fun_evaluate_ndcg(inp))
+        all_ndcgs = np.stack(all_ndcgs, axis=0)
         ndcg[k] = np.mean(all_ndcgs)
 
     # 保存：recall/map/ndcg的最佳值
@@ -222,10 +231,11 @@ def fun_predict_auc_recall_map_ndcg_dist(
         axis=1,
         arr=dist_predicted,
         top_k=at_nums[-1])
-    all_ranks = np.apply_along_axis(
-        func1d=fun_sort_idxs_max_to_min,
-        axis=1,
-        arr=np.array(zip(score_ranks, dist_predicted)))
+    all_ranks = []
+    for jj in range(score_ranks.shape[0]):
+        inp = (score_ranks[jj], dist_predicted[jj])
+        all_ranks.append(fun_sort_idxs_max_to_min(inp))
+    all_ranks = np.stack(all_ranks, axis=0)
 
     # 计算：recall、map、ndcg当前epoch的值
     arr = np.array([0.0 for _ in ranges])
@@ -234,23 +244,26 @@ def fun_predict_auc_recall_map_ndcg_dist(
     for k in ranges:                            # 每次考察某个at值下的命中情况
         recoms = all_ranks[:, :at_nums[k]]      # 向每名user推荐这些
         # 逐行，得到recom_lst在test_lst里的命中情况，返回与recom_lst等长的0/1序列，1表示预测的该item在user_test里
-        all_zero_ones = np.apply_along_axis(
-            func1d=fun_hit_zero_one,
-            axis=1,
-            arr=np.array(zip(dist_source, recoms, tes_masks, append)))   # shape=(n_user, at_nums[k])
+        all_zero_ones = []
+        for jj in range(len(dist_source)):
+            inp = (dist_source[jj], recoms[jj], tes_masks[jj], append[jj])
+            all_zero_ones.append(fun_hit_zero_one(inp))
+        all_zero_ones = np.stack(all_zero_ones, axis=0)
         hits[k] = np.sum(all_zero_ones)
         recall[k] = 1.0 * np.sum(all_zero_ones) / denominator_recalls
         precis[k] = 1.0 * np.sum(all_zero_ones) / (at_nums[k] * len(all_zero_ones))
         f1scor[k] = 2.0 * recall[k] * precis[k] / (recall[k] + precis[k])
-        all_maps = np.apply_along_axis(
-            func1d=fun_evaluate_map,
-            axis=1,
-            arr=np.array(zip(dist_source, all_zero_ones, tes_masks, append)))
+        all_maps = []
+        for jj in range(len(dist_source)):
+            inp = (dist_source[jj], all_zero_ones[jj], tes_masks[jj], append[jj])
+            all_maps.append(fun_evaluate_map(inp))
+        all_maps = np.stack(all_maps, axis=0)
         map[k] = np.mean(all_maps)
-        all_ndcgs = np.apply_along_axis(
-            func1d=fun_evaluate_ndcg,
-            axis=1,
-            arr=np.array(zip(dist_source, all_zero_ones, tes_masks, append)))
+        all_ndcgs = []
+        for jj in range(len(dist_source)):
+            inp = (dist_source[jj], all_zero_ones[jj], tes_masks[jj], append[jj])
+            all_ndcgs.append(inp)
+        all_ndcgs = np.stack(all_ndcgs, axis=0)
         ndcg[k] = np.mean(all_ndcgs)
 
     # 保存：recall/map/ndcg的最佳值

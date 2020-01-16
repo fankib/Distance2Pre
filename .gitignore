@@ -1,0 +1,4 @@
+# from python setuptools:
+public.egg-info/
+__pycache__/
+poidata/

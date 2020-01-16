@@ -89,7 +89,9 @@ def load_data(dataset, mode, split, dd, dist_num):
     tra_pois, tes_pois = [], []
     tra_dist, tes_dist = [], []                 # idx0 = max_dist, idx1 = 0/1的间距并划分到距离区间里。
     for upois, ucods in zip(all_user_pois, all_user_cods):
-        left, right = upois[:split], [upois[split]]   # 预测最后一个。此时right只有一个idx，加[]变成list。
+        #split using 80/20:
+        upois_split = int(len(upois) * split)
+        left, right = upois[:upois_split], upois[:upois_split]   # 预测最后一个。此时right只有一个idx，加[]变成list。
 
         # 两个POI之间距离间隔落在哪个区间。
         dist = []
@@ -97,7 +99,7 @@ def load_data(dataset, mode, split, dd, dist_num):
             pre = ucods[i]
             dist.append(cal_dis(cord[0], cord[1], pre[0], pre[1], dd, dist_num))
         dist = [dist_num] + dist                # idx=0的距离间隔，就用最大的。
-        dist_lf, dist_rt = dist[:split], [dist[split]]
+        dist_lf, dist_rt = dist[:upois_split], dist[upois_split:]
 
         # 保存
         tra_pois.append(left)
@@ -248,10 +250,11 @@ def fun_acquire_prob(all_sus, ulptai, dist_num):
         return usr_probs_to_all_pois
 
     probs_mask = np.asarray(ulptai) < dist_num  # 反之如果>=380，也就是38km，那些太远，不做推荐，mask里会标为0。
-    usrs_probs_to_all_pois = np.apply_along_axis(
-        func1d=fun_uprob_uinterval,
-        axis=1,
-        arr=np.array(zip(all_sus, ulptai, probs_mask)))
+    usrs_probs_to_all_pois = []
+    for jj in range(len(all_sus)):
+        inp = (all_sus[jj], ulptai[jj], probs_mask[jj])
+        usrs_probs_to_all_pois.append(fun_uprob_uinterval(inp))
+    usrs_probs_to_all_pois = np.stack(usrs_probs_to_all_pois, axis=0)
     return usrs_probs_to_all_pois
 
 

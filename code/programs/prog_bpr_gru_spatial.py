@@ -5,7 +5,6 @@
 # Create Date:  2017-05-19 12:00:00
 # Modify Date:  2010-00-00 00:00:00
 # Modify Disp:
-
 from __future__ import print_function
 from collections import OrderedDict     # 按输入的顺序构建字典
 import time
@@ -27,7 +26,6 @@ WHOLE = './poidata/'
 PATH_f = os.path.join(WHOLE, './Foursquare')
 PATH_g = os.path.join(WHOLE, './Gowalla')
 PATH = PATH_f
-
 
 def exe_time(func):
     def new_func(*args, **args2):
@@ -63,8 +61,9 @@ class Params(object):
                     ('dataset',             'sub_users5_items5.txt'),
                     ('mode',                'test' if 't' == t else 'valid'),
 
-                    ('split',               -1 if 't' == t else -2),   # test预测最后一个。
-                    ('at_nums',             [5, 10, 15, 20]),
+                    #('split',               -1 if 't' == t else -2),   # test预测最后一个。
+                    ('split',               0.8),
+                    ('at_nums',             [1, 5, 10, 2048]),
                     ('epochs',              100),    # 调程序用50，test时用100.
 
                     ('latent_size',         20),

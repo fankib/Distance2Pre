@@ -1,3 +1,25 @@
+# Distance2Pre update
+80/20 split on gowalla like datasets.
+
+## Usage:
+
+* Prepare datasets (untar under code/programs/poidata)
+
+* install 'public' as editable module:
+```
+[code]$ pip install -e .
+```
+* run training:
+```
+[code/programs]$ python prog_***
+```
+
+## Reported values:
+Recall is reported at 4 invervalls: @1, @5, @10, @2048
+MAP is computed only considering these values. fourth column is the
+best underestimation of the real MAP this implementation provides:
+hits outside of the top 2048 contribute zero instead of 1/(>2048).
+
 # Distance2Pre
 Code for my PAKDD-2019. It is implemented by Python27 and Theano.
 

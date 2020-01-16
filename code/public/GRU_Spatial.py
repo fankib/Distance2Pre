@@ -19,7 +19,7 @@ from theano.tensor import exp
 from theano.tensor import log
 # from theano.tensor.nnet.nnet import softmax     # 作用于2d-matrix，按行处理。
 from theano.tensor.extra_ops import Unique
-from GRU import GruBasic
+from public.GRU import GruBasic
 
 __docformat__ = 'restructedtext en'
 

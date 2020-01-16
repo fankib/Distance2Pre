@@ -76,11 +76,11 @@ class GlobalBest(object):
         #     two + '{val}'.format(val=self.best_epoch_precis)    # 不输出precision
         f = two + 'F1-score  = [{val}], '.format(val=truncate4(self.best_f1scor * amp)) + \
             two + '{val}'.format(val=self.best_epoch_f1scor)
-        # g = two + 'MAP       = [{val}], '.format(val=truncate4(self.best_map * amp)) + \
-        #     two + '{val}'.format(val=self.best_epoch_map)
+        g = two + 'MAP       = [{val}], '.format(val=truncate4(self.best_map * amp)) + \
+            two + '{val}'.format(val=self.best_epoch_map)
         h = two + 'NDCG      = [{val}], '.format(val=truncate4(self.best_ndcg * amp)) + \
             two + '{val}'.format(val=self.best_epoch_ndcg)
-        return '\n'.join([a, b, c, d, f, h])
+        return '\n'.join([a, b, c, d, f, g, h])
 
     def fun_print_best(self, epoch):
         # 输出最优值
