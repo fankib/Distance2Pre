@@ -7,7 +7,7 @@
 
 * install 'public' as editable module:
 ```
-[code]$ pip install -e .
+[code]$ pip install --user -e .
 ```
 * run training:
 ```

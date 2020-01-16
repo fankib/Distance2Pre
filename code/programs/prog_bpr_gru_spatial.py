@@ -25,7 +25,7 @@ __docformat__ = 'restructedtext en'
 WHOLE = './poidata/'
 PATH_f = os.path.join(WHOLE, './Foursquare')
 PATH_g = os.path.join(WHOLE, './Gowalla')
-PATH = PATH_f
+PATH = PATH_g
 
 def exe_time(func):
     def new_func(*args, **args2):
